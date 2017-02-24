@@ -1,5 +1,34 @@
-@(userMessage: String)
+@(form: Form[UserInfo])(implicit request: UserRequest[_])
 
-@main("Play-Kalium") {
-    @userMessage (See HomeController.scala for why you got this message)
+@defining(request.messages) { implicit messages =>
+    @main("play-scala-secure-session-example") {
+
+        @request.flash.data.map{ case (k, v) =>
+        <p>
+            @k: @v
+        </p>
+        }
+
+        <p>
+            Username is @{request.userInfo.map(_.username).getOrElse("undefined")}
+        </p>
+
+        @if(request.userInfo.isEmpty) {
+            @helper.form(routes.LoginController.login) {
+                @helper.CSRF.formField
+                @helper.inputText(form("username"))
+                <input type="submit"/>
+            }
+        }
+
+        @if(request.userInfo.isDefined) {
+            <form action="@routes.LogoutController.logout" method="post">
+                @helper.CSRF.formField
+                <input type="submit" value="logout">
+            </form>
+        }
+
+
+    }
 }
+
