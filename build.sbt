@@ -1,4 +1,4 @@
-name := """play-kalium"""
+name := """play-scala-kalium-example"""
 
 version := "1.0-SNAPSHOT"
 
