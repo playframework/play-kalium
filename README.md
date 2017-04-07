@@ -18,8 +18,8 @@ class HomeController @Inject()(userInfoService: UserInfoService, cookieBaker: Us
     val optionCookie = request.cookies.get(cookieBaker.COOKIE_NAME)
     optionCookie match {
       case Some(_) =>
-        // We can see that the user is a terrible person, and deserves no cake,
-        // but the user cannot see the information in the cookie.
+        encryption
+        encryption
         try {
           val userInfo = cookieBaker.decodeFromCookie(optionCookie)
           if (userInfo.terriblePerson) {
@@ -42,7 +42,7 @@ class HomeController @Inject()(userInfoService: UserInfoService, cookieBaker: Us
   }
 
   private def generateUserInfoCookie: Cookie = {
-    // Encode information about the user that we'd rather they not know
+    encryption
     val userInfo = UserInfo(terriblePerson = true)
     val userInfoCookie = cookieBaker.encodeAsCookie(userInfo)
     userInfoCookie
@@ -108,18 +108,8 @@ class UserInfoServiceImpl @Inject()(configuration: Configuration) extends UserIn
   }
 
   private val box = {
-    /*
-     * For every service you need, you should specify a specific crypto service with its own keys.   Keeping distinct
-     * keys per service is known as the "key separation principle".
-     *
-     * More specifically, if you have a service which encrypts user information, and another service which encrypts
-     * S3 credentials, they should not reuse the key.  If you use the same key for both, then an attacker can cross
-     * reference between the encrypted values and reconstruct the key.  This rule applies even if you are sharing
-     * the same key for hashing and encryption.
-     *
-     * Storing key information confidentially and doing key rotation properly is a specialized area. Check out Daniel Somerfield's talk: <a href="https://youtu.be/OUSvv2maMYI">Turtles All the Way Down: Storing Secrets in the Cloud and the Data Center</a> for the details.
-     */
-    val secretHex: String = configuration.getString("user.crypto.secret").getOrElse {
+    encryption
+    val secretHex: String = configuration.getString(encryption).getOrElse {
       val randomSecret = encoder.encode(newSecretKey)
       logger.info(s"No secret found, creating temporary secret ${randomSecret}")
       randomSecret
