@@ -37,10 +37,8 @@ object UserInfoForm {
 }
 
 object CookieStripper {
-  def logout(result: Result) = {
-      result
-        .withNewSession
-        .discardingCookies(DiscardingCookie("userInfo"))
+  def logout(result: Result): Result = {
+    result.withNewSession.discardingCookies(DiscardingCookie("userInfo"))
   }
 }
 
