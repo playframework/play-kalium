@@ -2,9 +2,7 @@ package controllers
 
 import javax.inject._
 
-import play.api.http.SecretConfiguration
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesProvider}
-import play.api.libs.crypto.CookieSigner
 import play.api.mvc._
 import services.session.SessionService
 import services.user.{UserInfo, UserInfoService}
@@ -72,20 +70,18 @@ class UserInfoAction @Inject()(sessionService: SessionService,
   override protected def executionContext: ExecutionContext = ec
 
   override def invokeBlock[A](request: Request[A], block: (UserRequest[A]) => Future[Result]): Future[Result] = {
-    val result = for {
+    block(new UserRequest[A](request, userInfoFromRequest(request), messagesApi))
+  }
+
+  private def userInfoFromRequest(request: RequestHeader): Option[UserInfo] = {
+    val maybeCookieBaker = for {
       sessionId <- request.session.get("sessionId")
       secretKey <- sessionService.lookup(sessionId)
-      cookieBaker = factory.createCookieBaker(secretKey)
-      userInfoCookie = request.cookies.get(cookieBaker.COOKIE_NAME)
-      userInfo = cookieBaker.decodeFromCookie(userInfoCookie)
-    } yield {
-      block(new UserRequest[A](request, userInfo, messagesApi))
-    }
+    } yield factory.createCookieBaker(secretKey)
 
-    result.getOrElse(Future.successful(CookieStripper.logout {
-      implicit val userRequest = new UserRequest[A](request, None, messagesApi)
-      Results.Ok(views.html.index(UserInfoForm.form))
-    }))
+    maybeCookieBaker.flatMap { cookieBaker =>
+      cookieBaker.decodeFromCookie(request.cookies.get(cookieBaker.COOKIE_NAME))
+    }
   }
 
 }
