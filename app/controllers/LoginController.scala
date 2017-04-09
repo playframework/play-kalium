@@ -2,37 +2,41 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
+import play.api.data.Form
+import play.api.mvc._
 import services.session.SessionService
-import services.user.{UserInfo, UserInfoService}
+import services.encryption.EncryptionService
 
 
 @Singleton
-class LoginController @Inject()(sessionService: SessionService,
-                                userInfoService: UserInfoService,
+class LoginController @Inject()(action: UserInfoAction,
+                                sessionService: SessionService,
+                                userInfoService: EncryptionService,
                                 factory: UserInfoCookieBakerFactory,
                                 cc: ControllerComponents) extends AbstractController(cc) {
 
-  def login = Action { implicit request: Request[AnyContent] =>
-    def successFunc = { userInfo: UserInfo =>
+  def login = action { implicit request: UserRequest[AnyContent] =>
+    val successFunc = { userInfo: UserInfo =>
+      // create a user info cookie with this specific secret key
       val secretKey = userInfoService.newSecretKey
-      val sessionId = sessionService.create(secretKey)
-
-      // Session id and user info are distinct cookies.  The user info lives as long as you
-      // have a secret key for it.  The session dies when the browser closes or you logout.
       val cookieBaker = factory.createCookieBaker(secretKey)
       val userInfoCookie = cookieBaker.encodeAsCookie(Some(userInfo))
-      val session = request.session + ("sessionId" -> sessionId)
+
+      // Tie the secret key to a session id, and store the session id in client side cookie
+      val sessionId = sessionService.create(secretKey)
+      val session = request.session + (SESSION_ID -> sessionId)
 
       play.api.Logger.info("Created a new username " + userInfo)
 
+      // client sees the session cookie with the session id, but never sees the secret key.
       Redirect(routes.HomeController.index()).withSession(session).withCookies(userInfoCookie)
     }
 
-    UserInfoForm.form.bindFromRequest().fold({ form =>
-      play.api.Logger.error("could not log in!")
-      Redirect(routes.HomeController.index()).flashing("error" -> "Could not login!")
-    }, successFunc)
+    val errorFunc = { badForm: Form[UserInfo] =>
+      BadRequest(views.html.index(badForm)).flashing(FLASH_ERROR -> "Could not login!")
+    }
+
+    form.bindFromRequest().fold(errorFunc, successFunc)
   }
 
 }
