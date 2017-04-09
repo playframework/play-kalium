@@ -105,4 +105,22 @@ package object controllers {
     }
   }
 
+  @Singleton
+  class SessionGenerator @Inject()(sessionService: SessionService,
+                                   userInfoService: EncryptionService,
+                                   factory: UserInfoCookieBakerFactory) {
+
+    def createSession(userInfo: UserInfo): (String, Cookie) = {
+      // create a user info cookie with this specific secret key
+      val secretKey = userInfoService.newSecretKey
+      val cookieBaker = factory.createCookieBaker(secretKey)
+      val userInfoCookie = cookieBaker.encodeAsCookie(Some(userInfo))
+
+      // Tie the secret key to a session id, and store the encrypted data in client side cookie
+      val sessionId = sessionService.create(secretKey)
+      (sessionId, userInfoCookie)
+    }
+
+  }
+
 }

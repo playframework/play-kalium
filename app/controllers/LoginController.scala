@@ -4,9 +4,6 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.data.Form
 import play.api.mvc._
-import services.encryption.EncryptionService
-import services.session.SessionService
-
 
 @Singleton
 class LoginController @Inject()(action: UserInfoAction,
@@ -27,24 +24,6 @@ class LoginController @Inject()(action: UserInfoAction,
     }
 
     form.bindFromRequest().fold(errorFunc, successFunc)
-  }
-
-}
-
-@Singleton
-class SessionGenerator @Inject()(sessionService: SessionService,
-                                 userInfoService: EncryptionService,
-                                 factory: UserInfoCookieBakerFactory) {
-
-  def createSession(userInfo: UserInfo): (String, Cookie) = {
-    // create a user info cookie with this specific secret key
-    val secretKey = userInfoService.newSecretKey
-    val cookieBaker = factory.createCookieBaker(secretKey)
-    val userInfoCookie = cookieBaker.encodeAsCookie(Some(userInfo))
-
-    // Tie the secret key to a session id, and store the session id in client side cookie
-    val sessionId = sessionService.create(secretKey)
-    (sessionId, userInfoCookie)
   }
 
 }
