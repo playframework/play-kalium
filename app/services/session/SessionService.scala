@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SessionService @Inject()(@Named("replicatedCache") cacheActor: ActorRef)(implicit ec: ExecutionContext) {
 
-  implicit def akkaTimeout = akka.util.Timeout(300 seconds)
+  implicit def akkaTimeout = akka.util.Timeout(300.milliseconds)
 
   def create(secretKey: Array[Byte]): Future[String] = {
     val sessionId = newSessionId()

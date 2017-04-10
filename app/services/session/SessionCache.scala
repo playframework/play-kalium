@@ -65,11 +65,12 @@ class SessionCache extends Actor with ActorLogging {
   private def dataKey(key: String): LWWMapKey[String, Any] = LWWMapKey(key)
 
   private def refreshSessionExpiration(key: String) = {
-    log.info(s"Refreshing session $key")
     context.child(key) match {
       case Some(sessionInstance) =>
+        log.info(s"Refreshing session $key")
         sessionInstance ! RefreshSession
       case None =>
+        log.info(s"Creating new session $key")
         context.actorOf(SessionExpiration.props(key, expirationTime), key)
     }
   }
