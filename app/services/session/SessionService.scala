@@ -4,7 +4,7 @@ import javax.inject.{Inject, Named, Singleton}
 
 import akka.actor.ActorRef
 import akka.pattern.ask
-import services.session.ReplicatedCache._
+import services.session.SessionCache._
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
