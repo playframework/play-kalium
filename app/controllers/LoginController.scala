@@ -9,13 +9,13 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class LoginController @Inject() (
-  action: UserInfoAction,
+  userAction: UserInfoAction,
   sessionGenerator: SessionGenerator,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc) {
 
-  def login = action.async { implicit request: UserRequest[AnyContent] =>
+  def login = userAction.async { implicit request: UserRequest[AnyContent] =>
     val successFunc = { userInfo: UserInfo =>
       sessionGenerator.createSession(userInfo).map {
         case (sessionId, encryptedCookie) =>

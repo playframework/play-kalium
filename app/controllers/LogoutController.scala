@@ -8,7 +8,7 @@ import services.session.SessionService
 @Singleton
 class LogoutController @Inject() (
   sessionService: SessionService,
-    cc: ControllerComponents
+  cc: ControllerComponents
 ) extends AbstractController(cc) {
 
   def logout = Action { implicit request: Request[AnyContent] =>
