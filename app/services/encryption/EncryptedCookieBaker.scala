@@ -13,8 +13,7 @@ abstract class EncryptedCookieBaker[A: Format](
   secretKey: Array[Byte],
   encryptionService: EncryptionService,
   val secretConfiguration: SecretConfiguration
-)
-    extends CookieBaker[Option[A]] with JWTCookieDataCodec {
+) extends CookieBaker[Option[A]] with JWTCookieDataCodec {
 
   def expirationDate: FiniteDuration
 
