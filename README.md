@@ -14,6 +14,8 @@ You must install libsodium before using this application.  If you have homebrew,
 
 You must have JDK 1.8 and [sbt](http://www.scala-sbt.org/) installed.
 
+It is assumed that you have installed 
+
 ## Running
 
 Run sbt from the command line:
