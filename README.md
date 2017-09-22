@@ -72,9 +72,11 @@ The example internally uses [Akka Distributed Data](http://doc.akka.io/docs/akka
 
 The basic structure of the cache is taken from [Akka's ReplicatedCache example](https://github.com/akka/akka-samples/blob/master/akka-sample-distributed-data-scala/src/main/scala/sample/distributeddata/ReplicatedCache.scala), but here an expiration time is added to ensure that an idle session will be reaped after reaching TTL, even if there is no explicit logout.  This does result in an individual actor per session, but the ActorCell only becomes active when there is a change in session state, so this is very low overhead.
 
-Note that the map is not persisted in this example, so if all the Play instances go down at once, then everyone is logged out.  Also note that this uses Artery, which uses UDP without transport layer encryption.  **It is assumed transport level encryption is handled by the datacenter.**
-
 Since this is an example, rather than having to run several Play instances, a ClusterSystem that runs two Akka cluster nodes in the background is used, and are configured as the seed nodes for the cluster, so you can see the cluster messages in the logs.  In production, each Play instance should be part of the cluster and they will take care of themselves.
+
+> Note that the map is not persisted in this example, so **if all the Play instances go down at once, then everyone is logged out.**  
+
+> Also note that this uses Artery, which uses UDP without transport layer encryption.  **It is assumed transport level encryption is handled by the datacenter.**
 
 ### Database Session Store
 
