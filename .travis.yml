@@ -3,9 +3,6 @@ sudo: true
 group: beta
 language: scala
 scala:
-  # When updating Scala versions, also check the excludes
-  # in build matrix below.
-  - 2.11.12
   - 2.12.6
 jdk:
   - oraclejdk8
@@ -32,9 +29,7 @@ before_cache:
 # Exclude some combinations from build matrix. See:
 # https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix
 matrix:
-  exclude:
-    - scala: 2.11.12
-      jdk: openjdk11
+  fast_finish: true
   allow_failures:
     # Current release of Gradle still does not supports Play 2.7.x releases
     # As soon as there is a release of Gradle that fixes that, we can then
