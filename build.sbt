@@ -6,8 +6,6 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.12.7"
 
-crossScalaVersions := Seq("2.11.12", "2.12.7")
-
 libraryDependencies += ws
 libraryDependencies += guice
 libraryDependencies += "org.abstractj.kalium" % "kalium" % "0.8.0"
