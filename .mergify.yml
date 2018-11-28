@@ -1,32 +1,49 @@
 pull_request_rules:
-        
-  - name: automatic merge 2.6.x on CI success
+  - name: automatic merge on CI success require review
     conditions:
       - status-success=continuous-integration/travis-ci/pr
-      - base=2.6.x
+      - "#approved-reviews-by>=1"
+      - "#changes-requested-reviews-by=0"
       - label=merge-when-green
       - label!=work-in-progress
     actions:
       merge:
-        method: merge
+        method: squash
         strict: smart
 
-  - name: automatic merge 2.7.x on CI success
+  - name: automatic merge on CI success for TemplateControl
     conditions:
       - status-success=continuous-integration/travis-ci/pr
-      - base=2.7.x
       - label=merge-when-green
+      - label=template-control
       - label!=work-in-progress
     actions:
       merge:
-        method: merge
+        method: squash
         strict: smart
 
-  - name: clean-up after merge
+  # delete any branch when already merged
+  # doesn't matter if marked with labels or not
+  - name: delete branch after merge
     conditions:
       - merged
-      - label=[merge-when-green]
+    actions:
+      delete_head_branch: {}
+
+  # delete 'merge-when-green' label if present and merged
+  - name: remove label after merge
+    conditions:
+      - merged
+      - label=merge-when-green
     actions:
       label:
         remove: [merge-when-green]
-      delete_head_branch: {}
+
+  # delete 'template-control' label if present and merged
+  - name: remove label after merge
+    conditions:
+      - merged
+      - label=template-control
+    actions:
+      label:
+        remove: [template-control]
